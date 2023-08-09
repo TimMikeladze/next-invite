@@ -1,54 +1,40 @@
-import { nanoid } from 'nanoid';
-import { NextResponse } from 'next/server.js';
 import { z } from 'zod';
+import { NextToolConfig } from 'next-tool';
 
 // eslint-disable-next-line no-shadow
 export enum HandlerAction {
   createInvite = 'createInvite',
   deleteInvite = 'deleteInvite',
+  findInvite = 'findInvite',
   getInvite = 'getInvite',
   invalidateInvite = 'invalidateInvite',
+  isValidInvite = 'isValidInvite',
   useInvite = 'useInvite',
 }
 
-export type SendFn = <JsonBody>(
-  body: JsonBody,
-  init?: { status?: number }
-) => NextResponse<JsonBody> | Promise<void>;
-
-export type NextInviteRequest = {
-  body?: any;
-  headers?: Headers;
-};
-
-export type HandlerArgs = {
-  request: NextInviteRequest;
-  send: SendFn;
-};
+export type NextInviteConfig = NextToolConfig;
 
 export interface NextInviteStore {
-  createInvite(args: CreateInviteArgs): Promise<Invite>;
+  createInvite(
+    args: CreateInviteArgs & {
+      code: string;
+      remaining?: number | null;
+    }
+  ): Promise<Invite>;
   deleteInvite(args: DeleteInviteArgs): Promise<void>;
+  findInvite(args: FindInviteArgs): Promise<Invite | undefined>;
   getInvite(args: GetInviteArgs): Promise<Invite>;
   invalidateInvite(args: InvalidateInviteArgs): Promise<Invite>;
   logInviteUse(args: LogInviteUseArgs): Promise<void>;
-  useInvite(args: UseInviteArgs): Promise<Invite>;
+  useInvite(args: {
+    id: string;
+    invalid: boolean;
+    remaining: number | null;
+  }): Promise<Invite>;
 }
 
-export type GetStoreFn = () => Promise<NextInviteStore | undefined>;
-
-export const zNextInviteConfig = z.object({
-  enabledHandlerActions: z
-    .array(z.nativeEnum(HandlerAction))
-    .default([])
-    .optional(),
-  actions: z.record(z.function()).default({}).optional(),
-});
-
-export type NextInviteConfig = z.infer<typeof zNextInviteConfig>;
-
 export const zInvite = z.object({
-  id: z.string().default(() => nanoid()),
+  id: z.string(),
   email: z.string().email().optional().nullable(),
   code: z.string(),
   expires: z.number().optional().nullable(),
@@ -56,6 +42,9 @@ export const zInvite = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   invalid: z.boolean(),
+  unlimited: z.boolean(),
+  total: z.number().optional().nullable(),
+  remaining: z.number().optional().nullable(),
 });
 
 export type Invite = z.infer<typeof zInvite>;
@@ -72,12 +61,20 @@ export const zGetInviteArgs = z.object({
 
 export type GetInviteArgs = z.infer<typeof zGetInviteArgs>;
 
-export const zCreateInviteArgs = zInvite.pick({
-  id: true,
-  email: true,
-  code: true,
-  expires: true,
-  data: true,
+export const zFindInviteArgs = z.object({
+  email: z.string().email().optional().nullable(),
+  code: z.string(),
+});
+
+export type FindInviteArgs = z.infer<typeof zFindInviteArgs>;
+
+export const zCreateInviteArgs = z.object({
+  id: z.string().optional().nullable(),
+  email: z.string().email().optional().nullable(),
+  expires: z.number().optional().nullable(),
+  data: z.any().optional().nullable(),
+  unlimited: z.boolean().optional().nullish(),
+  total: z.number().optional().nullable(),
 });
 
 export type CreateInviteArgs = z.infer<typeof zCreateInviteArgs>;

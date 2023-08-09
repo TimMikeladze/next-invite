@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { it, describe, beforeEach, afterEach } from 'vitest';
+import { it, describe, expect, beforeEach, afterEach } from 'vitest';
+import { nanoid } from 'nanoid';
 import { DrizzlePgStore, NextInvite } from '../src';
 import { NextInviteStore } from '../src/types';
 import { getDb } from './db/getDb';
@@ -14,7 +15,7 @@ const runTests = async (
   args: {
     afterEach?: () => Promise<void>;
     beforeEach?: () => Promise<void>;
-    store: () => Promise<NextInviteStore>;
+    getStore: () => Promise<NextInviteStore>;
   }
 ) => {
   const config = {};
@@ -27,17 +28,360 @@ const runTests = async (
     await args.afterEach?.();
   });
 
-  describe(`NextUpload - ${name}`, () => {
+  const store = (await args.getStore) as any;
+
+  describe(`NextInvite - ${name}`, () => {
     it(`initializes`, async () => {
-      const nextInvite = new NextInvite(config, args.store);
+      const nextInvite = new NextInvite(config, store);
 
       await nextInvite.init();
+    });
+
+    it(`creates invite`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite();
+
+      expect(invite).toBeDefined();
+
+      expect(invite.id).toBeDefined();
+    });
+
+    it('create invite with total uses', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({
+        total: 5,
+      });
+
+      expect(invite).toBeDefined();
+
+      expect(invite.id).toBeDefined();
+
+      expect(invite.total).toBe(5);
+
+      expect(invite.unlimited).toBeFalsy();
+    });
+
+    it(`create invite with unlimited uses`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({
+        unlimited: true,
+      });
+
+      expect(invite).toBeDefined();
+
+      expect(invite.id).toBeDefined();
+
+      expect(invite.total).toBeNull();
+
+      expect(invite.unlimited).toBeTruthy();
+    });
+
+    it(`creates invite with custom data and id`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const id = nanoid();
+
+      const { invite } = await nextInvite.createInvite({
+        id,
+        data: { foo: 'bar' },
+      });
+
+      expect(invite).toBeDefined();
+
+      expect(invite.id).toBe(id);
+
+      expect(invite.data).toEqual({ foo: 'bar' });
+    });
+
+    it('create invite throw error on invalid args', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      expect(
+        nextInvite.createInvite({
+          email: 'foo@bar.com',
+          total: 5,
+        })
+      ).rejects.toThrowError(
+        "email, unlimited and total can't be used together"
+      );
+
+      expect(
+        nextInvite.createInvite({
+          email: 'foo@bar.com',
+          unlimited: true,
+        })
+      ).rejects.toThrowError(
+        "email, unlimited and total can't be used together"
+      );
+
+      expect(
+        nextInvite.createInvite({
+          total: 5,
+          unlimited: true,
+        })
+      ).rejects.toThrowError(
+        "email, unlimited and total can't be used together"
+      );
+    });
+
+    it('invalidate invite', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite();
+
+      expect(invite.invalid).toBeFalsy();
+
+      await nextInvite.invalidateInvite({
+        id: invite.id,
+      });
+
+      const { invite: invalidInvite } = await nextInvite.getInvite(invite);
+
+      expect(invalidInvite.invalid).toBeTruthy();
+    });
+
+    it('delete an invite', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite();
+
+      await nextInvite.deleteInvite(invite);
+
+      const { invite: deletedInvite } = await nextInvite.getInvite(invite);
+
+      expect(deletedInvite).toBeUndefined();
+    });
+
+    it('get invite', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite();
+
+      const { invite: foundInvite } = await nextInvite.getInvite(invite);
+
+      expect(foundInvite).toEqual(invite);
+    });
+    it(`get invite not found`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite: foundInvite } = await nextInvite.getInvite({
+        id: 'not-found',
+      });
+
+      expect(foundInvite).toBeUndefined();
+    });
+    it(`find invite`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite();
+
+      const { invite: foundInvite } = await nextInvite.findInvite({
+        code: invite.code,
+      });
+
+      expect(foundInvite).toEqual(invite);
+    });
+    it(`find invite with email`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({
+        email: 'foo@bar.com',
+      });
+
+      const { invite: foundInvite } = await nextInvite.findInvite({
+        email: 'foo@bar.com',
+        code: invite.code,
+      });
+
+      expect(foundInvite).toEqual(invite);
+    });
+    it(`find invite invalid email`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({
+        email: 'foo@bar.com',
+      });
+
+      const { invite: foundInvite } = await nextInvite.findInvite({
+        email: 'wrong@bar.com',
+        code: invite.code,
+      });
+
+      expect(foundInvite).toBeUndefined();
+    });
+    it(`find invite invalid code`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      await nextInvite.createInvite({
+        email: 'foo@bar.com',
+      });
+
+      const { invite: foundInvite } = await nextInvite.findInvite({
+        email: 'foo@bar.com',
+        code: '',
+      });
+
+      expect(foundInvite).toEqual(undefined);
+    });
+    it('use an invite that doesnt exist', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      await nextInvite.createInvite();
+
+      expect(
+        nextInvite.useInvite({
+          code: '',
+        })
+      ).rejects.toThrowError('Invite not found');
+    });
+    it('use an invite that is invalid', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite();
+
+      await nextInvite.invalidateInvite(invite);
+
+      expect(
+        nextInvite.useInvite({
+          code: invite.code,
+        })
+      ).rejects.toThrowError('Invite is invalid');
+    });
+    it('use an invite', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite();
+
+      await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      const { invite: usedInvite } = await nextInvite.getInvite(invite);
+
+      expect(usedInvite.invalid).toBeTruthy();
+    });
+    it(`use an invite with email`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({
+        email: 'foo@bar.com',
+      });
+
+      const { invite: usedInvite } = await nextInvite.useInvite({
+        code: invite.code,
+        email: 'foo@bar.com',
+      });
+
+      expect(usedInvite.invalid).toBeTruthy();
+    });
+    it(`use an invite with an invalid email`, async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      const { invite } = await nextInvite.createInvite({
+        email: 'foo@bar.com',
+      });
+
+      expect(
+        nextInvite.useInvite({
+          code: invite.code,
+          email: 'wrong@bar.com',
+        })
+      ).rejects.toThrowError('Invite not found');
+    });
+    it('use an invite with unlimited uses', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({
+        unlimited: true,
+      });
+
+      await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      const { invite: usedInvite } = await nextInvite.getInvite(invite);
+
+      expect(usedInvite.invalid).toBeFalsy();
+    });
+    it('use an invite with total uses', async () => {
+      const nextInvite = new NextInvite(config, store);
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({
+        total: 2,
+      });
+
+      await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      const { invite: usedInvite } = await nextInvite.getInvite(invite);
+
+      expect(usedInvite.invalid).toBeTruthy();
+
+      expect(
+        nextInvite.useInvite({
+          code: invite.code,
+        })
+      ).rejects.toThrowError('Invite is invalid');
     });
   });
 };
 
 runTests('DrizzlePgStore', {
-  store: async () => new DrizzlePgStore(await getDb()),
+  getStore: async () => new DrizzlePgStore(await getDb()),
   beforeEach: async () => {
     await migrate(await getDb(), {
       migrationsFolder: resolve(`tests/db/migrations`),

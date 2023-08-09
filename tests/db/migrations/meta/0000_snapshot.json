@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "18a64e0b-4f01-43ab-b7d9-51fc4745dd79",
+  "id": "bf015ecd-f477-476a-8280-a99482a1ec2c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "next_invite_invite_logs": {
@@ -112,18 +112,24 @@
           "primaryKey": false,
           "notNull": false
         },
-        "namespace": {
-          "name": "namespace",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'default'"
-        },
-        "remainingUses": {
-          "name": "remainingUses",
+        "remaining": {
+          "name": "remaining",
           "type": "bigint",
           "primaryKey": false,
           "notNull": false
+        },
+        "total": {
+          "name": "total",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unlimited": {
+          "name": "unlimited",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "invalid": {
           "name": "invalid",

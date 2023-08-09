@@ -29,10 +29,13 @@ export const drizzlePgInvitesTable = pgTable(`next_invite_invites`, {
   }),
   code: varchar(`code`).notNull().unique(),
   email: varchar(`email`),
-  namespace: varchar(`namespace`).notNull().default(`default`),
-  remaining: bigint(`remainingUses`, {
+  remaining: bigint(`remaining`, {
     mode: 'number',
   }),
+  total: bigint(`total`, {
+    mode: 'number',
+  }),
+  unlimited: boolean(`unlimited`).notNull().default(false),
   invalid: boolean(`invalid`).notNull().default(false),
 });
 

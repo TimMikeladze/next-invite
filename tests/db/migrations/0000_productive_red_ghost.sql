@@ -15,8 +15,9 @@ CREATE TABLE IF NOT EXISTS "next_invite_invites" (
 	"expires" bigint,
 	"code" varchar NOT NULL,
 	"email" varchar,
-	"namespace" varchar DEFAULT 'default' NOT NULL,
-	"remainingUses" bigint,
+	"remaining" bigint,
+	"total" bigint,
+	"unlimited" boolean DEFAULT false NOT NULL,
 	"invalid" boolean DEFAULT false NOT NULL,
 	CONSTRAINT "next_invite_invites_code_unique" UNIQUE("code")
 );

@@ -6,12 +6,21 @@ jobs:
   run-ci:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PG_CONNECTION_STRING: postgres://postgres:password@localhost:5432
+      PG_DB: postgres
 
     name: Run Type Check & Linters
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
+      - name: Set up PostgreSQL
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '14'
+          postgresql user: postgres
+          postgresql password: password
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
@@ -40,6 +49,13 @@ jobs:
 
       - name: Build package
         run: yarn build
+
+      # - name: Setup examples
+      #   run: |
+      #     cd examples/next-upload-example
+      #     yarn install --frozen-lockfile
+      #     yarn link next-upload
+      #     yarn build
 
       - name: Check commits messages
         uses: wagoid/commitlint-github-action@v5

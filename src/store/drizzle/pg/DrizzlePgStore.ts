@@ -3,11 +3,11 @@ import { and, eq } from 'drizzle-orm';
 import {
   CreateInviteArgs,
   DeleteInviteArgs,
+  FindInviteArgs,
   GetInviteArgs,
   InvalidateInviteArgs,
   LogInviteUseArgs,
   NextInviteStore,
-  UseInviteArgs,
 } from '../../../types';
 import {
   drizzlePgInviteLogsTable,
@@ -21,13 +21,35 @@ export class DrizzlePgStore implements NextInviteStore {
     this.db = db;
   }
 
-  async createInvite(args: CreateInviteArgs) {
+  async findInvite(args: FindInviteArgs) {
+    const andFilter = [
+      eq(drizzlePgInvitesTable.code, args.code),
+      args.email ? eq(drizzlePgInvitesTable.email, args.email) : undefined,
+    ].filter(Boolean);
+
+    const res = await this.db
+      .select()
+      .from(drizzlePgInvitesTable)
+      .where(and(...andFilter))
+      .limit(1);
+
+    return res?.[0];
+  }
+
+  async createInvite(
+    args: CreateInviteArgs & {
+      code: string;
+      id: string;
+      remaining: number | null;
+      unlimited: boolean;
+    }
+  ) {
     const res = await this.db
       .insert(drizzlePgInvitesTable)
       .values(args)
       .returning();
 
-    return res[0];
+    return res?.[0];
   }
 
   async getInvite(args: GetInviteArgs) {
@@ -37,7 +59,7 @@ export class DrizzlePgStore implements NextInviteStore {
       .where(and(eq(drizzlePgInvitesTable.id, args.id)))
       .limit(1);
 
-    return res[0];
+    return res?.[0];
   }
 
   async invalidateInvite(args: InvalidateInviteArgs) {
@@ -47,7 +69,7 @@ export class DrizzlePgStore implements NextInviteStore {
       .where(and(eq(drizzlePgInvitesTable.id, args.id)))
       .returning();
 
-    return res[0];
+    return res?.[0];
   }
 
   async deleteInvite(args: DeleteInviteArgs) {
@@ -56,19 +78,21 @@ export class DrizzlePgStore implements NextInviteStore {
       .where(and(eq(drizzlePgInvitesTable.id, args.id)));
   }
 
-  async useInvite(args: UseInviteArgs) {
-    const andFilter = [
-      eq(drizzlePgInvitesTable.code, args.code),
-      args.email ? eq(drizzlePgInvitesTable.email, args.email) : undefined,
-    ].filter(Boolean);
-
+  async useInvite(args: {
+    id: string;
+    invalid: boolean;
+    remaining: number | null;
+  }) {
     const rows = await this.db
       .update(drizzlePgInvitesTable)
-      .set({})
-      .where(and(...andFilter))
+      .set({
+        remaining: args.remaining,
+        invalid: args.invalid,
+      })
+      .where(eq(drizzlePgInvitesTable.id, args.id))
       .returning();
 
-    return rows[0];
+    return rows?.[0];
   }
 
   async logInviteUse(args: LogInviteUseArgs) {

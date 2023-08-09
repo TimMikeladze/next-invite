@@ -10768,6 +10768,11 @@ next-tick@1, next-tick@^1.1.0:
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.1.0.tgz#1836ee30ad56d67ef281b22bd199f709449b35eb"
   integrity sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==
 
+next-tool@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/next-tool/-/next-tool-0.0.1.tgz#9eccfb102d43387991503ec3dfdd830188e9d2ca"
+  integrity sha512-aSNXgSesSL7P9/arNQ/n2Yy+JMiQgMC4BULrgbAQlJX0K84cranD9ZS2DXMMzJbpbrQ+h437RD/c1JGG1iwPFw==
+
 next@^13.4.12:
   version "13.4.13"
   resolved "https://registry.yarnpkg.com/next/-/next-13.4.13.tgz#8824c5702daa2ef691386871c9158a6324df33d6"
@@ -11469,7 +11474,7 @@ pg-types@^4.0.1:
     postgres-interval "^3.0.0"
     postgres-range "^1.1.1"
 
-pg@^8.11.2:
+pg@8.11.2:
   version "8.11.2"
   resolved "https://registry.yarnpkg.com/pg/-/pg-8.11.2.tgz#1a23f6de7bfb65ba56e4dd15df96668d319900c4"
   integrity sha512-l4rmVeV8qTIrrPrIR3kZQqBgSN93331s9i6wiUiLOSk0Q7PmUxZD/m1rQI622l3NfqBby9Ar5PABfS/SulfieQ==

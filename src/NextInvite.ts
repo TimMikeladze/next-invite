@@ -1,13 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server.js';
-import { NextApiRequest, NextApiResponse } from 'next/types';
 import { nanoid } from 'nanoid';
+import { NextTool } from 'next-tool';
 import {
   CreateInviteArgs,
   DeleteInviteArgs,
+  FindInviteArgs,
   GetInviteArgs,
-  GetStoreFn,
   HandlerAction,
-  HandlerArgs,
   InvalidateInviteArgs,
   Invite,
   NextInviteConfig,
@@ -15,130 +13,90 @@ import {
   UseInviteArgs,
   zCreateInviteArgs,
   zDeleteInviteArgs,
+  zFindInviteArgs,
   zGetInviteArgs,
   zInvalidateInviteArgs,
-  zNextInviteConfig,
   zUseInviteArgs,
 } from './types';
 
-export class NextInvite {
-  private store: NextInviteStore | undefined;
-
-  private getStoreFn: GetStoreFn;
-
-  private config: NextInviteConfig;
-
-  constructor(config: NextInviteConfig, store: GetStoreFn | NextInviteStore) {
-    this.config = zNextInviteConfig.parse(config);
-    const getStoreFn = (
-      store !== undefined
-        ? typeof store === 'function'
-          ? store
-          : () => Promise.resolve(store)
-        : undefined
-    ) as GetStoreFn;
-    if (!getStoreFn) {
-      throw new Error('NextInvite: store is undefined');
-    }
-    this.getStoreFn = getStoreFn;
-  }
-
-  public static namespaceFromEnv(project?: string) {
-    if (process.env.VERCEL) {
-      return NextInvite.namespaceFromVercel();
-    }
-
-    return [`localhost`, project, process.env.NODE_ENV]
-      .filter(Boolean)
-      .join('-')
-      .toLowerCase();
-  }
-
-  private static namespaceFromVercel() {
-    return [
-      process.env.VERCEL_GIT_REPO_OWNER,
-      process.env.VERCEL_GIT_REPO_SLUG,
-      process.env.VERCEL_ENV,
-    ]
-      .join('-')
-      .toLowerCase();
-  }
-
-  public getConfig() {
-    return this.config;
-  }
-
-  public getStore() {
-    return this.store;
-  }
-
-  public async init() {
-    if (!this.store && this.getStoreFn) {
-      this.store = await this.getStoreFn?.();
-    }
-  }
-
-  public async handler(request: NextRequest) {
-    const body = await request.json();
-
-    return this.rawHandler({
-      send: NextResponse.json,
-      request: {
-        body,
-        headers: request.headers,
-      },
+export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
+  constructor(config: NextInviteConfig, store: NextInviteStore) {
+    super(config, store, {
+      [HandlerAction.createInvite]: (args) => this.createInvite(args),
+      [HandlerAction.invalidateInvite]: (args) => this.invalidateInvite(args),
+      [HandlerAction.findInvite]: (args) => this.findInvite(args),
+      [HandlerAction.getInvite]: (args) => this.getInvite(args),
+      [HandlerAction.deleteInvite]: (args) => this.deleteInvite(args),
+      [HandlerAction.isValidInvite]: (args) => this.isValidInvite(args),
+      [HandlerAction.useInvite]: (args) => this.useInvite(args),
     });
   }
 
-  public async pagesApiHandler(
-    request: NextApiRequest,
-    response: NextApiResponse
-  ) {
-    const { body, headers } = request;
-
-    const json = async (data: any, options?: { status?: number }) =>
-      response.status(options?.status || 200).json(data);
-
-    return this.rawHandler({
-      send: json,
-      request: {
-        body,
-        headers: headers as any,
-      },
-    });
-  }
-
-  public async createInvite(args: CreateInviteArgs): Promise<Invite> {
+  public async createInvite(
+    args: CreateInviteArgs = {}
+  ): Promise<{ invite: Invite }> {
     await this.init();
 
     const data = zCreateInviteArgs.parse({
+      id: nanoid(),
       ...args,
     });
 
-    return this.store!.createInvite(data);
+    if ([data.email, data.unlimited, data.total].filter(Boolean).length > 1) {
+      throw new Error("email, unlimited and total can't be used together");
+    }
+
+    return {
+      invite: await this.store!.createInvite({
+        ...data,
+        remaining: args.total ? args.total : null,
+        code: nanoid(),
+      }),
+    };
   }
 
-  public async invalidateInvite(args: InvalidateInviteArgs): Promise<Invite> {
+  public async invalidateInvite(
+    args: InvalidateInviteArgs
+  ): Promise<{ invite: Invite }> {
     await this.init();
 
     const data = zInvalidateInviteArgs.parse(args);
 
-    return this.store!.invalidateInvite({
+    const invite = await this.store!.invalidateInvite({
       id: data.id,
     });
+
+    return { invite };
   }
 
-  public async getInvite(args: GetInviteArgs): Promise<Invite> {
+  public async findInvite(
+    args: FindInviteArgs
+  ): Promise<{ invite: Invite | undefined }> {
+    await this.init();
+
+    const data = zFindInviteArgs.parse(args);
+
+    return {
+      invite: await this.store!.findInvite({
+        code: data.code,
+        email: data.email,
+      }),
+    };
+  }
+
+  public async getInvite(args: GetInviteArgs): Promise<{ invite: Invite }> {
     await this.init();
 
     const data = zGetInviteArgs.parse(args);
 
-    return this.store!.getInvite({
-      id: data.id,
-    });
+    return {
+      invite: await this.store!.getInvite({
+        id: data.id,
+      }),
+    };
   }
 
-  public async deleteInvite(args: DeleteInviteArgs) {
+  public async deleteInvite(args: DeleteInviteArgs): Promise<boolean> {
     await this.init();
 
     const data = zDeleteInviteArgs.parse(args);
@@ -146,9 +104,11 @@ export class NextInvite {
     await this.store!.deleteInvite({
       id: data.id,
     });
+
+    return true;
   }
 
-  public async isValidInvite(args: GetInviteArgs) {
+  public async isValidInvite(args: GetInviteArgs): Promise<boolean> {
     await this.init();
 
     const data = zGetInviteArgs.parse(args);
@@ -157,15 +117,43 @@ export class NextInvite {
       id: data.id,
     });
 
-    return !invite.invalid;
+    if (invite.invalid) {
+      return false;
+    }
+
+    if (invite.total && invite.remaining === 0) {
+      return false;
+    }
+
+    return true;
   }
 
-  public async useInvite(args: UseInviteArgs) {
+  public async useInvite(args: UseInviteArgs): Promise<{
+    invite: Invite;
+  }> {
     await this.init();
 
     const data = zUseInviteArgs.parse(args);
 
-    const invite = await this.store!.useInvite(data);
+    const { invite } = await this.findInvite(data);
+
+    if (!invite) {
+      throw new Error(`Invite not found`);
+    }
+
+    if (!(await this.isValidInvite({ id: invite.id }))) {
+      throw new Error(`Invite is invalid`);
+    }
+
+    const remaining = invite.total ? Number(invite.remaining) - 1 : 0;
+
+    const invalid = invite.total ? remaining === 0 : !invite.unlimited;
+
+    const usedInvite = await this.store!.useInvite({
+      id: invite.id,
+      remaining,
+      invalid,
+    });
 
     await this.store!.logInviteUse({
       id: nanoid(),
@@ -173,53 +161,9 @@ export class NextInvite {
       email: invite.email,
       data: args.data,
     });
-  }
 
-  public async rawHandler(handlerArgs: HandlerArgs) {
-    const { send, request } = handlerArgs;
-
-    if (!request.body) {
-      return send({ error: `No body` }, { status: 400 });
-    }
-
-    const { action, args } = request.body;
-
-    if (!action) {
-      return send({ error: `No action` }, { status: 400 });
-    }
-
-    const enabledActions = this.config.enabledHandlerActions;
-
-    if (!enabledActions.includes(action)) {
-      return send({ error: `Action "${action}" not enabled` }, { status: 400 });
-    }
-
-    await this.init();
-
-    const { actions } = this.config;
-
-    const actionFn = (
-      {
-        [HandlerAction.createInvite]: () => this.createInvite(args),
-        [HandlerAction.deleteInvite]: () => this.deleteInvite(args),
-        [HandlerAction.getInvite]: () => this.getInvite(args),
-        [HandlerAction.invalidateInvite]: () => this.invalidateInvite(args),
-        [HandlerAction.useInvite]: () => this.useInvite(args),
-        ...actions,
-      } as any
-    )[action];
-
-    if (!actionFn) {
-      return send({ error: `Unknown action "${action}"` }, { status: 400 });
-    }
-
-    try {
-      const data = await actionFn();
-
-      return send({ data });
-    } catch (error) {
-      console.error(error);
-      return send({ error: (error as any).message }, { status: 500 });
-    }
+    return {
+      invite: usedInvite,
+    };
   }
 }
