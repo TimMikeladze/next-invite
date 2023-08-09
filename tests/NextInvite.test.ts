@@ -145,6 +145,39 @@ const runTests = async (
           "email, unlimited and total can't be used together"
         );
       });
+
+      it(`create invite for email`, async () => {
+        const nextInvite = new NextInvite(config, store);
+
+        await nextInvite.init();
+
+        const { invite } = await nextInvite.createInvite({
+          email: 'foo@bar.com',
+        });
+
+        expect(invite.email).toEqual('foo@bar.com');
+      });
+
+      it(`create invite with expiration`, async () => {
+        const nextInvite = new NextInvite(config, store);
+
+        await nextInvite.init();
+
+        const expires = Date.now() + 1000;
+
+        const { invite } = await nextInvite.createInvite({
+          expires,
+        });
+
+        expect(nextInvite.isValidInvite(invite)).to.resolves.toBeTruthy();
+
+        // eslint-disable-next-line no-promise-executor-return
+        const sleep = (ms: number) => new Promise((x) => setTimeout(x, ms));
+
+        await sleep(1000);
+
+        expect(nextInvite.isValidInvite(invite)).to.resolves.toBeFalsy();
+      });
     });
 
     it('invalidate invite', async () => {

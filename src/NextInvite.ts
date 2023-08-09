@@ -88,6 +88,12 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
 
     const invites = await this.store!.filterInvites(data);
 
+    invites.results = invites.results.map((invite) => ({
+      ...invite,
+      // eslint-disable-next-line no-underscore-dangle
+      invalid: !NextInvite._isValidInvite(invite),
+    }));
+
     return { invites };
   }
 
@@ -176,15 +182,8 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
       id: data.id,
     });
 
-    if (invite.invalid) {
-      return false;
-    }
-
-    if (invite.total && invite.remaining === 0) {
-      return false;
-    }
-
-    return true;
+    // eslint-disable-next-line no-underscore-dangle
+    return NextInvite._isValidInvite(invite);
   }
 
   public async useInvite(args: UseInviteArgs): Promise<{
@@ -202,6 +201,9 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     }
 
     if (!(await this.isValidInvite({ id: invite.id }))) {
+      if (!invite.invalid) {
+        await this.invalidateInvite({ id: invite.id });
+      }
       throw new Error(`Invite is invalid`);
     }
 
@@ -230,5 +232,25 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
       invite: usedInvite,
       inviteLog,
     };
+  }
+
+  // eslint-disable-next-line no-underscore-dangle
+  private static _isValidInvite(invite: Invite) {
+    if (!invite) {
+      return false;
+    }
+    if (invite.invalid) {
+      return false;
+    }
+
+    if (invite.total && invite.remaining === 0) {
+      return false;
+    }
+
+    if (invite.expires && Date.now() >= invite.expires) {
+      return false;
+    }
+
+    return true;
   }
 }
