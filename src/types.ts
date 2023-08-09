@@ -38,8 +38,11 @@ export interface NextInviteStore {
 export type GetStoreFn = () => Promise<NextInviteStore | undefined>;
 
 export const zNextInviteConfig = z.object({
-  enabledHandlerActions: z.array(z.nativeEnum(HandlerAction)).default([]),
-  actions: z.record(z.function()).default({}),
+  enabledHandlerActions: z
+    .array(z.nativeEnum(HandlerAction))
+    .default([])
+    .optional(),
+  actions: z.record(z.function()).default({}).optional(),
 });
 
 export type NextInviteConfig = z.infer<typeof zNextInviteConfig>;
