@@ -9,7 +9,7 @@ import {
   FindInviteArgs,
   GetInviteArgs,
   GetInviteLogArgs,
-  HandlerAction,
+  NextInviteAction,
   InvalidateInviteArgs,
   Invite,
   InviteLog,
@@ -30,13 +30,14 @@ import {
 export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
   constructor(config: NextInviteConfig, store: NextInviteStore) {
     super(config, store, {
-      [HandlerAction.createInvite]: (args) => this.createInvite(args),
-      [HandlerAction.invalidateInvite]: (args) => this.invalidateInvite(args),
-      [HandlerAction.findInvite]: (args) => this.findInvite(args),
-      [HandlerAction.getInvite]: (args) => this.getInvite(args),
-      [HandlerAction.deleteInvite]: (args) => this.deleteInvite(args),
-      [HandlerAction.isValidInvite]: (args) => this.isValidInvite(args),
-      [HandlerAction.useInvite]: (args) => this.useInvite(args),
+      [NextInviteAction.createInvite]: (args) => this.createInvite(args),
+      [NextInviteAction.invalidateInvite]: (args) =>
+        this.invalidateInvite(args),
+      [NextInviteAction.findInvite]: (args) => this.findInvite(args),
+      [NextInviteAction.getInvite]: (args) => this.getInvite(args),
+      [NextInviteAction.deleteInvite]: (args) => this.deleteInvite(args),
+      [NextInviteAction.isValidInvite]: (args) => this.isValidInvite(args),
+      [NextInviteAction.useInvite]: (args) => this.useInvite(args),
     });
   }
 

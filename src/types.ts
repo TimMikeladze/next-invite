@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { NextToolConfig } from 'next-tool';
 
 // eslint-disable-next-line no-shadow
-export enum HandlerAction {
+export enum NextInviteAction {
   createInvite = 'createInvite',
   deleteInvite = 'deleteInvite',
   findInvite = 'findInvite',

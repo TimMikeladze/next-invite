@@ -161,7 +161,7 @@
   },
   "dependencies": {
     "nanoid": "^4.0.2",
-    "next-tool": "^0.0.1",
+    "next-tool": "^0.0.4",
     "zod": "^3.21.4"
   }
 }

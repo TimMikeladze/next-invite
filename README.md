@@ -40,6 +40,12 @@ pnpm add next-invite
 - [zInvalidateInviteArgs](#gear-zinvalidateinviteargs)
 - [zUseInviteArgs](#gear-zuseinviteargs)
 - [zLogInviteUseArgs](#gear-zloginviteuseargs)
+- [zInviteLog](#gear-zinvitelog)
+- [zBaseFilterArgs](#gear-zbasefilterargs)
+- [zFilterInvitesArgs](#gear-zfilterinvitesargs)
+- [zFilterInviteLogsArgs](#gear-zfilterinvitelogsargs)
+- [zDeleteInviteLogArgs](#gear-zdeleteinvitelogargs)
+- [zGetInviteLogArgs](#gear-zgetinvitelogargs)
 
 ### :gear: zInvite
 
@@ -89,6 +95,42 @@ pnpm add next-invite
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `zLogInviteUseArgs` | `ZodObject<{ id: ZodString; inviteId: ZodString; email: ZodNullable<ZodOptional<ZodString>>; data: ZodNullable<ZodOptional<ZodAny>>; }, "strip", ZodTypeAny, { ...; }, { ...; }>` |
 
+### :gear: zInviteLog
+
+| Constant     | Type                                                                                                                                                                                                                                |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `zInviteLog` | `ZodObject<{ id: ZodString; inviteId: ZodNullable<ZodOptional<ZodString>>; email: ZodNullable<ZodOptional<ZodString>>; data: ZodNullable<...>; createdAt: ZodDate; updatedAt: ZodDate; }, "strip", ZodTypeAny, { ...; }, { ...; }>` |
+
+### :gear: zBaseFilterArgs
+
+| Constant          | Type                                                                                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `zBaseFilterArgs` | `ZodObject<{ limit: ZodNullable<ZodOptional<ZodNumber>>; offset: ZodNullable<ZodOptional<ZodNumber>>; all: ZodNullable<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>` |
+
+### :gear: zFilterInvitesArgs
+
+| Constant             | Type                                                                                                                                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `zFilterInvitesArgs` | `ZodObject<{ limit: ZodNullable<ZodOptional<ZodNumber>>; offset: ZodNullable<ZodOptional<ZodNumber>>; all: ZodNullable<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>` |
+
+### :gear: zFilterInviteLogsArgs
+
+| Constant                | Type                                                                                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `zFilterInviteLogsArgs` | `ZodObject<{ limit: ZodNullable<ZodOptional<ZodNumber>>; offset: ZodNullable<ZodOptional<ZodNumber>>; all: ZodNullable<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>` |
+
+### :gear: zDeleteInviteLogArgs
+
+| Constant               | Type                                                                                     |
+| ---------------------- | ---------------------------------------------------------------------------------------- |
+| `zDeleteInviteLogArgs` | `ZodObject<{ id: ZodString; }, "strip", ZodTypeAny, { id?: string; }, { id?: string; }>` |
+
+### :gear: zGetInviteLogArgs
+
+| Constant            | Type                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| `zGetInviteLogArgs` | `ZodObject<{ id: ZodString; }, "strip", ZodTypeAny, { id?: string; }, { id?: string; }>` |
+
 ## :factory: NextInvite
 
 ### Methods
@@ -96,9 +138,13 @@ pnpm add next-invite
 - [createInvite](#gear-createinvite)
 - [createInvite](#gear-createinvite)
 - [invalidateInvite](#gear-invalidateinvite)
+- [filterInvites](#gear-filterinvites)
+- [filterInviteLogs](#gear-filterinvitelogs)
 - [findInvite](#gear-findinvite)
 - [getInvite](#gear-getinvite)
 - [deleteInvite](#gear-deleteinvite)
+- [getInviteLog](#gear-getinvitelog)
+- [deleteInviteLog](#gear-deleteinvitelog)
 - [isValidInvite](#gear-isvalidinvite)
 - [useInvite](#gear-useinvite)
 
@@ -120,6 +166,18 @@ pnpm add next-invite
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `invalidateInvite` | `(args: { id?: string; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
 
+#### :gear: filterInvites
+
+| Method          | Type                                                                                                                                                                                                                                                                                                                  |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `filterInvites` | `(args?: { limit?: number; offset?: number; all?: boolean; }) => Promise<{ invites: { count: number; results: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }[]; }; }>` |
+
+#### :gear: filterInviteLogs
+
+| Method             | Type                                                                                                                                                                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `filterInviteLogs` | `(args?: { limit?: number; offset?: number; all?: boolean; }) => Promise<{ inviteLogs: { count: number; results: { id?: string; inviteId?: string; email?: string; data?: any; createdAt?: Date; updatedAt?: Date; }[]; }; }>` |
+
 #### :gear: findInvite
 
 | Method       | Type                                                                                                                                                                                                                                                                |
@@ -138,6 +196,18 @@ pnpm add next-invite
 | -------------- | ---------------------------------------------- |
 | `deleteInvite` | `(args: { id?: string; }) => Promise<boolean>` |
 
+#### :gear: getInviteLog
+
+| Method         | Type                                                                                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getInviteLog` | `(args: { id?: string; }) => Promise<{ inviteLog: { id?: string; inviteId?: string; email?: string; data?: any; createdAt?: Date; updatedAt?: Date; }; }>` |
+
+#### :gear: deleteInviteLog
+
+| Method            | Type                                           |
+| ----------------- | ---------------------------------------------- |
+| `deleteInviteLog` | `(args: { id?: string; }) => Promise<boolean>` |
+
 #### :gear: isValidInvite
 
 | Method          | Type                                           |
@@ -146,8 +216,8 @@ pnpm add next-invite
 
 #### :gear: useInvite
 
-| Method      | Type                                                                                                                                                                                                                                                                            |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `useInvite` | `(args: { code?: string; email?: string; data?: any; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
+| Method      | Type                                                                                                                                                                                                                                                                                                  |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useInvite` | `(args: { code?: string; email?: string; data?: any; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; inviteLog?: { ...; }; }>` |
 
 <!-- TSDOC_END -->
