@@ -52,9 +52,9 @@ jobs:
 
       # - name: Setup examples
       #   run: |
-      #     cd examples/next-upload-example
+      #     cd examples/next-invite-example
       #     yarn install --frozen-lockfile
-      #     yarn link next-upload
+      #     yarn link next-invite
       #     yarn build
 
       - name: Check commits messages

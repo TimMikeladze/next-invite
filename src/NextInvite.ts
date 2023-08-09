@@ -3,18 +3,26 @@ import { NextTool } from 'next-tool';
 import {
   CreateInviteArgs,
   DeleteInviteArgs,
+  DeleteInviteLogArgs,
+  FilterInviteLogsArgs,
+  FilterInvitesArgs,
   FindInviteArgs,
   GetInviteArgs,
+  GetInviteLogArgs,
   HandlerAction,
   InvalidateInviteArgs,
   Invite,
+  InviteLog,
   NextInviteConfig,
   NextInviteStore,
   UseInviteArgs,
   zCreateInviteArgs,
   zDeleteInviteArgs,
+  zDeleteInviteLogArgs,
+  zFilterInvitesArgs,
   zFindInviteArgs,
   zGetInviteArgs,
+  zGetInviteLogArgs,
   zInvalidateInviteArgs,
   zUseInviteArgs,
 } from './types';
@@ -69,6 +77,32 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     return { invite };
   }
 
+  public async filterInvites(args: FilterInvitesArgs = {}) {
+    await this.init();
+
+    const data = zFilterInvitesArgs.parse({
+      ...args,
+      limit: args.limit || 10,
+    });
+
+    const invites = await this.store!.filterInvites(data);
+
+    return { invites };
+  }
+
+  public async filterInviteLogs(args: FilterInviteLogsArgs = {}) {
+    await this.init();
+
+    const data = zFilterInvitesArgs.parse({
+      ...args,
+      limit: args.limit || 10,
+    });
+
+    const inviteLogs = await this.store!.filterInviteLogs(data);
+
+    return { inviteLogs };
+  }
+
   public async findInvite(
     args: FindInviteArgs
   ): Promise<{ invite: Invite | undefined }> {
@@ -108,6 +142,30 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     return true;
   }
 
+  public async getInviteLog(args: GetInviteLogArgs) {
+    await this.init();
+
+    const data = zGetInviteLogArgs.parse(args);
+
+    return {
+      inviteLog: await this.store!.getInviteLog({
+        id: data.id,
+      }),
+    };
+  }
+
+  public async deleteInviteLog(args: DeleteInviteLogArgs): Promise<boolean> {
+    await this.init();
+
+    const data = zDeleteInviteLogArgs.parse(args);
+
+    await this.store!.deleteInviteLog({
+      id: data.id,
+    });
+
+    return true;
+  }
+
   public async isValidInvite(args: GetInviteArgs): Promise<boolean> {
     await this.init();
 
@@ -130,6 +188,7 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
 
   public async useInvite(args: UseInviteArgs): Promise<{
     invite: Invite;
+    inviteLog?: InviteLog;
   }> {
     await this.init();
 
@@ -155,15 +214,20 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
       invalid,
     });
 
-    await this.store!.logInviteUse({
-      id: nanoid(),
-      inviteId: invite.id,
-      email: invite.email,
-      data: args.data,
-    });
+    let inviteLog;
+
+    if (this.config.logInviteUse) {
+      inviteLog = await this.store!.logInviteUse({
+        id: nanoid(),
+        inviteId: invite.id,
+        email: invite.email,
+        data: args.data,
+      });
+    }
 
     return {
       invite: usedInvite,
+      inviteLog,
     };
   }
 }

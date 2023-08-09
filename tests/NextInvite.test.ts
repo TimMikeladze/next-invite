@@ -31,6 +31,14 @@ const runTests = async (
   const store = (await args.getStore) as any;
 
   describe(`NextInvite - ${name}`, () => {
+    beforeEach(async () => {
+      await args.beforeEach?.();
+    });
+
+    afterEach(async () => {
+      await args.afterEach?.();
+    });
+
     it(`initializes`, async () => {
       const nextInvite = new NextInvite(config, store);
 
@@ -376,6 +384,148 @@ const runTests = async (
           code: invite.code,
         })
       ).rejects.toThrowError('Invite is invalid');
+    });
+    it('use an invite and log use', async () => {
+      const nextInvite = new NextInvite(
+        {
+          ...config,
+          logInviteUse: true,
+        },
+        store
+      );
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({
+        email: 'foo@bar.com',
+      });
+
+      const { inviteLog } = await nextInvite.useInvite({
+        code: invite.code,
+        email: 'foo@bar.com',
+      });
+
+      expect(inviteLog?.inviteId).toEqual(invite.id);
+      expect(inviteLog?.email).toEqual('foo@bar.com');
+    });
+    it('filter invites', async () => {
+      const nextInvite = new NextInvite(
+        {
+          ...config,
+          logInviteUse: true,
+        },
+        store
+      );
+
+      await nextInvite.init();
+
+      await nextInvite.createInvite();
+
+      const { invites } = await nextInvite.filterInvites();
+
+      expect(invites.count).toBeGreaterThan(0);
+
+      expect(invites.results.length).toBeLessThanOrEqual(10);
+    });
+    it('filter invites with limit', async () => {
+      const nextInvite = new NextInvite(
+        {
+          ...config,
+          logInviteUse: true,
+        },
+        store
+      );
+
+      await nextInvite.init();
+
+      await nextInvite.createInvite();
+
+      const { invites } = await nextInvite.filterInvites({
+        limit: 1,
+      });
+
+      expect(invites.count).toBeGreaterThan(0);
+
+      expect(invites.results.length).toBe(1);
+    });
+    it(`filter invite logs`, async () => {
+      const nextInvite = new NextInvite(
+        {
+          ...config,
+          logInviteUse: true,
+        },
+        store
+      );
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({});
+
+      await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      const { inviteLogs } = await nextInvite.filterInviteLogs();
+
+      expect(inviteLogs.count).toBeGreaterThan(0);
+    });
+    it(`get invite log`, async () => {
+      const nextInvite = new NextInvite(
+        {
+          ...config,
+          logInviteUse: true,
+        },
+        store
+      );
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite({});
+
+      const { inviteLog } = await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      if (!inviteLog) {
+        throw new Error('Invite log not found');
+      }
+
+      const { inviteLog: foundInviteLog } = await nextInvite.getInviteLog(
+        inviteLog
+      );
+
+      expect(foundInviteLog).toEqual(inviteLog);
+    });
+    it('delete invite log', async () => {
+      const nextInvite = new NextInvite(
+        {
+          ...config,
+          logInviteUse: true,
+        },
+        store
+      );
+
+      await nextInvite.init();
+
+      const { invite } = await nextInvite.createInvite();
+
+      const { inviteLog } = await nextInvite.useInvite({
+        code: invite.code,
+      });
+
+      if (!inviteLog) {
+        throw new Error('Invite log not found');
+      }
+
+      await nextInvite.deleteInviteLog({
+        id: inviteLog.id,
+      });
+
+      const { inviteLog: deletedInviteLog } = await nextInvite.getInviteLog(
+        inviteLog
+      );
+
+      expect(deletedInviteLog).toBeUndefined();
     });
   });
 };

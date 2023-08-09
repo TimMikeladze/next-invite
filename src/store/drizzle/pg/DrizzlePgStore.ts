@@ -1,10 +1,14 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import {
   CreateInviteArgs,
   DeleteInviteArgs,
+  DeleteInviteLogArgs,
+  FilterInviteLogsArgs,
+  FilterInvitesArgs,
   FindInviteArgs,
   GetInviteArgs,
+  GetInviteLogArgs,
   InvalidateInviteArgs,
   LogInviteUseArgs,
   NextInviteStore,
@@ -19,6 +23,62 @@ export class DrizzlePgStore implements NextInviteStore {
 
   constructor(db: ReturnType<typeof drizzle>) {
     this.db = db;
+  }
+
+  async filterInvites(args: FilterInvitesArgs) {
+    const result = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(drizzlePgInvitesTable);
+
+    const count = Number(result?.[0]?.count || 0);
+
+    if (!count) {
+      return { count, results: [] };
+    }
+
+    let builder = this.db.select().from(drizzlePgInvitesTable);
+
+    if (!args.all && args.limit) {
+      builder = builder
+        .limit(args.limit)
+        .offset(args.offset || 0)
+        .orderBy(desc(drizzlePgInvitesTable.updatedAt));
+    }
+
+    const rows = await builder;
+
+    return {
+      count,
+      results: rows,
+    };
+  }
+
+  async filterInviteLogs(args: FilterInviteLogsArgs) {
+    const result = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(drizzlePgInviteLogsTable);
+
+    const count = Number(result?.[0]?.count || 0);
+
+    if (!count) {
+      return { count, results: [] };
+    }
+
+    let builder = this.db.select().from(drizzlePgInviteLogsTable);
+
+    if (!args.all && args.limit) {
+      builder = builder
+        .limit(args.limit)
+        .offset(args.offset || 0)
+        .orderBy(desc(drizzlePgInviteLogsTable.updatedAt));
+    }
+
+    const rows = await builder;
+
+    return {
+      count,
+      results: rows,
+    };
   }
 
   async findInvite(args: FindInviteArgs) {
@@ -96,6 +156,27 @@ export class DrizzlePgStore implements NextInviteStore {
   }
 
   async logInviteUse(args: LogInviteUseArgs) {
-    await this.db.insert(drizzlePgInviteLogsTable).values(args).returning();
+    const rows = await this.db
+      .insert(drizzlePgInviteLogsTable)
+      .values(args)
+      .returning();
+
+    return rows?.[0];
+  }
+
+  async deleteInviteLog(args: DeleteInviteLogArgs) {
+    await this.db
+      .delete(drizzlePgInviteLogsTable)
+      .where(and(eq(drizzlePgInviteLogsTable.id, args.id)));
+  }
+
+  async getInviteLog(args: GetInviteLogArgs) {
+    const res = await this.db
+      .select()
+      .from(drizzlePgInviteLogsTable)
+      .where(and(eq(drizzlePgInviteLogsTable.id, args.id)))
+      .limit(1);
+
+    return res?.[0];
   }
 }

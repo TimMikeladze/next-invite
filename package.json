@@ -1,13 +1,13 @@
 {
   "name": "next-invite",
   "description": "",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Tim Mikeladze <tim.mikeladze@gmail.com>",
   "license": "MIT",
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "git@github.com:TimMikeladze/next-upload.git"
+    "url": "git@github.com:TimMikeladze/next-invite.git"
   },
   "scripts": {
     "dev": "concurrently \"yarn build --watch\" \"yarn storybook\" \"yarn test\" ",

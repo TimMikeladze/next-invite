@@ -12,7 +12,9 @@ export enum HandlerAction {
   useInvite = 'useInvite',
 }
 
-export type NextInviteConfig = NextToolConfig;
+export type NextInviteConfig = NextToolConfig & {
+  logInviteUse?: boolean;
+};
 
 export interface NextInviteStore {
   createInvite(
@@ -22,10 +24,20 @@ export interface NextInviteStore {
     }
   ): Promise<Invite>;
   deleteInvite(args: DeleteInviteArgs): Promise<void>;
+  deleteInviteLog(args: DeleteInviteLogArgs): Promise<void>;
+  filterInviteLogs(args: FilterInviteLogsArgs): Promise<{
+    count: number;
+    results: InviteLog[];
+  }>;
+  filterInvites(args: FilterInvitesArgs): Promise<{
+    count: number;
+    results: Invite[];
+  }>;
   findInvite(args: FindInviteArgs): Promise<Invite | undefined>;
   getInvite(args: GetInviteArgs): Promise<Invite>;
+  getInviteLog(args: GetInviteLogArgs): Promise<InviteLog>;
   invalidateInvite(args: InvalidateInviteArgs): Promise<Invite>;
-  logInviteUse(args: LogInviteUseArgs): Promise<void>;
+  logInviteUse(args: LogInviteUseArgs): Promise<InviteLog>;
   useInvite(args: {
     id: string;
     invalid: boolean;
@@ -101,3 +113,40 @@ export const zLogInviteUseArgs = z.object({
 });
 
 export type LogInviteUseArgs = z.infer<typeof zLogInviteUseArgs>;
+
+export const zInviteLog = z.object({
+  id: z.string(),
+  inviteId: z.string().optional().nullable(),
+  email: z.string().email().optional().nullable(),
+  data: z.any().optional().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type InviteLog = z.infer<typeof zInviteLog>;
+
+export const zBaseFilterArgs = z.object({
+  limit: z.number().optional().nullable(),
+  offset: z.number().optional().nullable(),
+  all: z.boolean().optional().nullable(),
+});
+
+export const zFilterInvitesArgs = zBaseFilterArgs.extend({});
+
+export type FilterInvitesArgs = z.infer<typeof zFilterInvitesArgs>;
+
+export const zFilterInviteLogsArgs = zBaseFilterArgs.extend({});
+
+export type FilterInviteLogsArgs = z.infer<typeof zFilterInviteLogsArgs>;
+
+export const zDeleteInviteLogArgs = z.object({
+  id: z.string(),
+});
+
+export type DeleteInviteLogArgs = z.infer<typeof zDeleteInviteLogArgs>;
+
+export const zGetInviteLogArgs = z.object({
+  id: z.string(),
+});
+
+export type GetInviteLogArgs = z.infer<typeof zGetInviteLogArgs>;
