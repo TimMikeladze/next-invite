@@ -10,6 +10,9 @@ import {
   drizzlePgInvitesTable,
 } from '../src/store/drizzle/pg/DrizzlePgSchema';
 
+// eslint-disable-next-line no-promise-executor-return
+const sleep = (ms: number) => new Promise((x) => setTimeout(x, ms));
+
 const runTests = async (
   name: string,
   args: {
@@ -170,9 +173,6 @@ const runTests = async (
         });
 
         expect(nextInvite.isValidInvite(invite)).to.resolves.toBeTruthy();
-
-        // eslint-disable-next-line no-promise-executor-return
-        const sleep = (ms: number) => new Promise((x) => setTimeout(x, ms));
 
         await sleep(1000);
 
@@ -359,6 +359,22 @@ const runTests = async (
 
         expect(usedInvite.invalid).toBeTruthy();
       });
+      it(`use an invite with email but no code`, async () => {
+        const nextInvite = new NextInvite(config, store);
+
+        await nextInvite.init();
+
+        await nextInvite.createInvite({
+          email: 'foo@bar.com',
+        });
+
+        expect(
+          nextInvite.useInvite({
+            email: 'foo@bar.com',
+            code: '',
+          })
+        ).rejects.toThrowError('Invite not found');
+      });
       it(`use an invite with an invalid email`, async () => {
         const nextInvite = new NextInvite(config, store);
 
@@ -447,6 +463,27 @@ const runTests = async (
 
         expect(inviteLog?.inviteId).toEqual(invite.id);
         expect(inviteLog?.email).toEqual('foo@bar.com');
+      });
+      it('try to use expired invited', async () => {
+        const nextInvite = new NextInvite(config, store);
+
+        await nextInvite.init();
+
+        const expires = Date.now() + 1000;
+
+        const { invite } = await nextInvite.createInvite({
+          email: 'foo@bar.com',
+          expires,
+        });
+
+        await sleep(1000);
+
+        expect(
+          nextInvite.useInvite({
+            code: invite.code,
+            email: 'foo@bar.com',
+          })
+        ).rejects.toThrowError('Invite is invalid');
       });
     });
     describe('filter invites', () => {
