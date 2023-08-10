@@ -97,9 +97,9 @@ pnpm add next-invite
 
 ### :gear: zInviteLog
 
-| Constant     | Type                                                                                                                                                                                                                                |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `zInviteLog` | `ZodObject<{ id: ZodString; inviteId: ZodNullable<ZodOptional<ZodString>>; email: ZodNullable<ZodOptional<ZodString>>; data: ZodNullable<...>; createdAt: ZodDate; updatedAt: ZodDate; }, "strip", ZodTypeAny, { ...; }, { ...; }>` |
+| Constant     | Type                                                                                                                                                                                                                                            |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `zInviteLog` | `ZodObject<{ id: ZodString; inviteId: ZodNullable<ZodOptional<ZodString>>; email: ZodNullable<ZodOptional<ZodString>>; data: ZodNullable<...>; createdAt: ZodUnion<...>; updatedAt: ZodUnion<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>` |
 
 ### :gear: zBaseFilterArgs
 
@@ -150,45 +150,45 @@ pnpm add next-invite
 
 #### :gear: createInvite
 
-| Method         | Type                                                                                                                                                                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `createInvite` | `(args: any) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
+| Method         | Type                                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `createInvite` | `(args: any) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: string or Date; updatedAt?: string | Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
 
 #### :gear: createInvite
 
-| Method         | Type                                                                                                                                                                                                                                                                        |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `createInvite` | `(args?: { id?: string; email?: string; expires?: number; data?: any; unlimited?: boolean; total?: number; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; ... 4 more ...; remaining?: number; }; }>` |
+| Method         | Type                                                                                                                                                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createInvite` | `(args?: { id?: string; email?: string; expires?: number; data?: any; unlimited?: boolean; total?: number; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: string or Date; ... 4 more ...; remaining?: number; }; }>` |
 
 #### :gear: invalidateInvite
 
-| Method             | Type                                                                                                                                                                                                                                              |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `invalidateInvite` | `(args: { id?: string; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
+| Method             | Type                                                                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `invalidateInvite` | `(args: { id?: string; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: string or Date; updatedAt?: string | Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
 
 #### :gear: filterInvites
 
-| Method          | Type                                                                                                                                                                                                                                                                                                                  |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `filterInvites` | `(args?: { limit?: number; offset?: number; all?: boolean; }) => Promise<{ invites: { count: number; results: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }[]; }; }>` |
+| Method          | Type                                                                                                                                                                                                                                                                  |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `filterInvites` | `(args?: { limit?: number; offset?: number; all?: boolean; }) => Promise<{ invites: { count: number; results: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: string or Date; ... 4 more ...; remaining?: number; }[]; }; }>` |
 
 #### :gear: filterInviteLogs
 
-| Method             | Type                                                                                                                                                                                                                           |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `filterInviteLogs` | `(args?: { limit?: number; offset?: number; all?: boolean; }) => Promise<{ inviteLogs: { count: number; results: { id?: string; inviteId?: string; email?: string; data?: any; createdAt?: Date; updatedAt?: Date; }[]; }; }>` |
+| Method             | Type                                                                                                                                                                                                                          |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `filterInviteLogs` | `(args?: { limit?: number; offset?: number; all?: boolean; }) => Promise<{ inviteLogs: { count: number; results: { id?: string; inviteId?: string; email?: string; data?: any; createdAt?: string or Date; updatedAt?: string | Date; }[]; }; }>` |
 
 #### :gear: findInvite
 
-| Method       | Type                                                                                                                                                                                                                                                                |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `findInvite` | `(args: { email?: string; code?: string; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
+| Method       | Type                                                                                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `findInvite` | `(args: { email?: string; code?: string; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: string or Date; updatedAt?: string | Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
 
 #### :gear: getInvite
 
-| Method      | Type                                                                                                                                                                                                                                              |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `getInvite` | `(args: { id?: string; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
+| Method      | Type                                                                                                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `getInvite` | `(args: { id?: string; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: string or Date; updatedAt?: string | Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; }>` |
 
 #### :gear: deleteInvite
 
@@ -198,9 +198,9 @@ pnpm add next-invite
 
 #### :gear: getInviteLog
 
-| Method         | Type                                                                                                                                                       |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `getInviteLog` | `(args: { id?: string; }) => Promise<{ inviteLog: { id?: string; inviteId?: string; email?: string; data?: any; createdAt?: Date; updatedAt?: Date; }; }>` |
+| Method         | Type                                                                                                                                                           |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `getInviteLog` | `(args: { id?: string; }) => Promise<{ inviteLog: { id?: string; inviteId?: string; email?: string; data?: any; createdAt?: string or Date; updatedAt?: string | Date; }; }>` |
 
 #### :gear: deleteInviteLog
 
@@ -216,8 +216,8 @@ pnpm add next-invite
 
 #### :gear: useInvite
 
-| Method      | Type                                                                                                                                                                                                                                                                                                  |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `useInvite` | `(args: { code?: string; email?: string; data?: any; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: Date; updatedAt?: Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; inviteLog?: { ...; }; }>` |
+| Method      | Type                                                                                                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `useInvite` | `(args: { code?: string; email?: string; data?: any; }) => Promise<{ invite: { id?: string; email?: string; code?: string; expires?: number; data?: any; createdAt?: string or Date; updatedAt?: string | Date; invalid?: boolean; unlimited?: boolean; total?: number; remaining?: number; }; inviteLog?: { ...; }; }>` |
 
 <!-- TSDOC_END -->
