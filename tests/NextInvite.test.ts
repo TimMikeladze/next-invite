@@ -2,13 +2,13 @@ import { resolve } from 'path';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { it, describe, expect, beforeEach, afterEach } from 'vitest';
 import { nanoid } from 'nanoid';
-import { DrizzlePgStore, NextInvite } from '../src';
+import { DrizzlePgStore, NextInvite, drizzlePgInvitesTable } from '../src';
 import { NextInviteStore } from '../src/types';
-import { getDb } from './db/getDb';
-import {
-  drizzlePgInviteLogsTable,
-  drizzlePgInvitesTable,
-} from '../src/store/drizzle/pg/DrizzlePgSchema';
+
+import { getUpstash } from './store/upstash/getUpstash';
+import { DrizzleUpstashStore } from '../src/store/upstash/DrizzleUpstashStore';
+import { getDb } from './store/drizzle/pg/getDb';
+import { drizzlePgInviteLogsTable } from '../src/store/drizzle/pg/DrizzlePgSchema';
 
 // eslint-disable-next-line no-promise-executor-return
 const sleep = (ms: number) => new Promise((x) => setTimeout(x, ms));
@@ -195,7 +195,7 @@ const runTests = async (
 
       const { invite: invalidInvite } = await nextInvite.getInvite(invite);
 
-      expect(invalidInvite.invalid).toBeTruthy();
+      expect(invalidInvite!.invalid).toBeTruthy();
     });
 
     it('delete an invite', async () => {
@@ -341,7 +341,7 @@ const runTests = async (
 
         const { invite: usedInvite } = await nextInvite.getInvite(invite);
 
-        expect(usedInvite.invalid).toBeTruthy();
+        expect(usedInvite!.invalid).toBeTruthy();
       });
       it(`use an invite with email`, async () => {
         const nextInvite = new NextInvite(config, store);
@@ -412,7 +412,7 @@ const runTests = async (
 
         const { invite: usedInvite } = await nextInvite.getInvite(invite);
 
-        expect(usedInvite.invalid).toBeFalsy();
+        expect(usedInvite!.invalid).toBeFalsy();
       });
       it('use an invite with total uses', async () => {
         const nextInvite = new NextInvite(config, store);
@@ -433,7 +433,7 @@ const runTests = async (
 
         const { invite: usedInvite } = await nextInvite.getInvite(invite);
 
-        expect(usedInvite.invalid).toBeTruthy();
+        expect(usedInvite!.invalid).toBeTruthy();
 
         expect(
           nextInvite.useInvite({
@@ -614,7 +614,7 @@ runTests('DrizzlePgStore', {
   getStore: async () => new DrizzlePgStore(await getDb()),
   beforeEach: async () => {
     await migrate(await getDb(), {
-      migrationsFolder: resolve(`tests/db/migrations`),
+      migrationsFolder: resolve(`tests/store/drizzle/pg/migrations`),
     });
     (await getDb()).delete(drizzlePgInvitesTable);
     (await getDb()).delete(drizzlePgInviteLogsTable);
@@ -625,4 +625,6 @@ runTests('DrizzlePgStore', {
   },
 });
 
-// runTests('UpstashStore', {});
+runTests('UpstashStore', {
+  getStore: async () => new DrizzleUpstashStore(getUpstash()),
+});

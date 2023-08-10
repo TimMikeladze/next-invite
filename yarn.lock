@@ -5001,6 +5001,13 @@
     "@typescript-eslint/types" "6.3.0"
     eslint-visitor-keys "^3.4.1"
 
+"@upstash/redis@^1.22.0":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@upstash/redis/-/redis-1.22.0.tgz#3ae3ef056608c8598f46e8bc3b3f405a94781142"
+  integrity sha512-sXoJDoEqqik0HbrNE7yRWckOySEFsoBxfRdCgOqkc0w6py19ZZG50SpGkDDEUXSnBqP8VgGYXhWAiBpqxrt5oA==
+  dependencies:
+    isomorphic-fetch "^3.0.0"
+
 "@vitejs/plugin-react@^4.0.3":
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/@vitejs/plugin-react/-/plugin-react-4.0.4.tgz#31c3f779dc534e045c4b134e7cf7b150af0a7646"
@@ -9625,6 +9632,14 @@ isobject@^3.0.1:
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
 
+isomorphic-fetch@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/isomorphic-fetch/-/isomorphic-fetch-3.0.0.tgz#0267b005049046d2421207215d45d6a262b8b8b4"
+  integrity sha512-qvUtwJ3j6qwsF3jLxkZ72qCgjMysPzDfeV240JHiGZsANBYd+EEuu35v7dfrJ9Up0Ak07D7GGSkGhCHTqg/5wA==
+  dependencies:
+    node-fetch "^2.6.1"
+    whatwg-fetch "^3.4.1"
+
 issue-parser@6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/issue-parser/-/issue-parser-6.0.0.tgz#b1edd06315d4f2044a9755daf85fdafde9b4014a"
@@ -10768,10 +10783,10 @@ next-tick@1, next-tick@^1.1.0:
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.1.0.tgz#1836ee30ad56d67ef281b22bd199f709449b35eb"
   integrity sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==
 
-next-tool@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/next-tool/-/next-tool-0.0.4.tgz#8fa8b143b81f359be377ed54c7ff2771aac95218"
-  integrity sha512-ifhXfOhGbZQRI9hZEIge5u07IAV9N14M1sMYkd91HiGH7YyyZjHRSpoFHLW9o3wqgc2/n2P9XNcVQDQ88zCpnQ==
+next-tool@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/next-tool/-/next-tool-0.0.5.tgz#e30bc0fbba57c6e212d3c63f07c842c744681084"
+  integrity sha512-tu5Q5Go0S8F4n+FtZePg5dncrIARvqcmYIA2NBL6SpUtiwmFXk8pnYlFNW8fuQqzZSmoYw0hWE5/SWRSVJRsMA==
 
 next@^13.4.12:
   version "13.4.13"
@@ -10836,7 +10851,7 @@ node-fetch@3.3.1:
     fetch-blob "^3.1.4"
     formdata-polyfill "^4.0.10"
 
-node-fetch@^2.0.0:
+node-fetch@^2.0.0, node-fetch@^2.6.1:
   version "2.6.12"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.12.tgz#02eb8e22074018e3d5a83016649d04df0e348fba"
   integrity sha512-C/fGU2E8ToujUivIO0H+tpQ6HWo4eEmchoPIoXtxCrVghxdKq+QOHqEZW7tuP3KlV3bC8FRMO5nMCC7Zm1VP6g==
@@ -14110,6 +14125,11 @@ whatwg-encoding@^2.0.0:
   integrity sha512-p41ogyeMUrw3jWclHWTQg1k05DSVXPLcVxRTYsXUk+ZooOCZLcoYgPZ/HL/D/N+uQPOtcp1me1WhBEaX02mhWg==
   dependencies:
     iconv-lite "0.6.3"
+
+whatwg-fetch@^3.4.1:
+  version "3.6.17"
+  resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-3.6.17.tgz#009bbbfc122b227b74ba1ff31536b3a1a0e0e212"
+  integrity sha512-c4ghIvG6th0eudYwKZY5keb81wtFz9/WeAHAoy8+r18kcWlitUIrmGFQ2rWEl4UCKUilD3zCLHOIPheHx5ypRQ==
 
 whatwg-mimetype@^3.0.0:
   version "3.0.0"

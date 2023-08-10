@@ -34,8 +34,8 @@ export interface NextInviteStore {
     results: Invite[];
   }>;
   findInvite(args: FindInviteArgs): Promise<Invite | undefined>;
-  getInvite(args: GetInviteArgs): Promise<Invite>;
-  getInviteLog(args: GetInviteLogArgs): Promise<InviteLog>;
+  getInvite(args: GetInviteArgs): Promise<Invite | undefined>;
+  getInviteLog(args: GetInviteLogArgs): Promise<InviteLog | undefined>;
   invalidateInvite(args: InvalidateInviteArgs): Promise<Invite>;
   logInviteUse(args: LogInviteUseArgs): Promise<InviteLog>;
   useInvite(args: {
@@ -51,8 +51,8 @@ export const zInvite = z.object({
   code: z.string(),
   expires: z.number().optional().nullable(),
   data: z.any().optional().nullish(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().or(z.string()),
+  updatedAt: z.date().or(z.string()),
   invalid: z.boolean(),
   unlimited: z.boolean(),
   total: z.number().optional().nullable(),
@@ -119,8 +119,8 @@ export const zInviteLog = z.object({
   inviteId: z.string().optional().nullable(),
   email: z.string().email().optional().nullable(),
   data: z.any().optional().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().or(z.string()),
+  updatedAt: z.date().or(z.string()),
 });
 
 export type InviteLog = z.infer<typeof zInviteLog>;

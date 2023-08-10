@@ -58,6 +58,7 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     return {
       invite: await this.store!.createInvite({
         ...data,
+        total: data.total ? data.total : null,
         remaining: args.total ? args.total : null,
         code: nanoid(),
       }),
@@ -125,7 +126,9 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     };
   }
 
-  public async getInvite(args: GetInviteArgs): Promise<{ invite: Invite }> {
+  public async getInvite(
+    args: GetInviteArgs
+  ): Promise<{ invite: Invite | undefined }> {
     await this.init();
 
     const data = zGetInviteArgs.parse(args);
@@ -181,6 +184,10 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     const invite = await this.store!.getInvite({
       id: data.id,
     });
+
+    if (!invite) {
+      return false;
+    }
 
     // eslint-disable-next-line no-underscore-dangle
     return NextInvite._isValidInvite(invite);

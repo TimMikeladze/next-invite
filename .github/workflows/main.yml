@@ -8,10 +8,22 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PG_CONNECTION_STRING: postgres://postgres:password@localhost:5432
       PG_DB: postgres
+      UPSTASH_URL: http://srh:8080
+      UPSTASH_TOKEN: example_token
 
     name: Run Type Check & Linters
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    services:
+      redis:
+        image: redis/redis-stack-server:6.2.6-v6
+      srh:
+        image: hiett/serverless-redis-http:latest
+        env:
+          SRH_MODE: env
+          SRH_TOKEN: example_token
+          SRH_CONNECTION_STRING: redis://redis:6379
 
     steps:
       - name: Set up PostgreSQL
