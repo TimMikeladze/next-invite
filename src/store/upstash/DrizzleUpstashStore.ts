@@ -133,6 +133,14 @@ export class DrizzleUpstashStore implements NextInviteStore {
       JSON.stringify(data)
     );
 
+    if (
+      await this.db.exists(
+        this.formatKey(['invite', 'code', args.code, args.email || ''])
+      )
+    ) {
+      throw new Error('Invite code already exists');
+    }
+
     await this.db.set(
       this.formatKey(['invite', 'code', args.code, 'email', args.email || '']),
       args.id

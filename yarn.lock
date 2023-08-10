@@ -12897,6 +12897,11 @@ space-separated-tokens@^1.0.0:
   resolved "https://registry.yarnpkg.com/space-separated-tokens/-/space-separated-tokens-1.1.5.tgz#85f32c3d10d9682007e917414ddc5c26d1aa6899"
   integrity sha512-q/JSVd1Lptzhf5bkYm4ob4iWPjx0KiRe3sRFBNrVqbJkFaBm5vbbowy1mymoPNLRa52+oadOhJ+K49wsSeSjTA==
 
+space-slug@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/space-slug/-/space-slug-1.0.6.tgz#5589df795b768d46748ae4504d720d488f62fa9b"
+  integrity sha512-XbNvS9ug+ozR6KozZGAypjjJGsW3Bd5/HXt9wIblsIw3qOpABQOcF1z2V+5zSWYc4f7fiUp9JUG03pZJWYwYEQ==
+
 spawn-command@0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/spawn-command/-/spawn-command-0.0.2.tgz#9544e1a43ca045f8531aac1a48cb29bdae62338e"

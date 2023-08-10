@@ -13,6 +13,7 @@ export enum NextInviteAction {
 }
 
 export type NextInviteConfig = NextToolConfig & {
+  generateInviteCode?: () => Promise<string>;
   logInviteUse?: boolean;
 };
 

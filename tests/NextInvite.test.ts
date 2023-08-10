@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+import { spaceSlug } from 'space-slug';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { it, describe, expect, beforeEach, afterEach } from 'vitest';
 import { nanoid } from 'nanoid';
@@ -606,6 +607,27 @@ const runTests = async (
       );
 
       expect(deletedInviteLog).toBeUndefined();
+    });
+    it('works with custom invite code function', async () => {
+      const code = spaceSlug();
+
+      const nextInvite = new NextInvite(
+        {
+          ...config,
+          generateInviteCode: async () => code,
+        },
+        store
+      );
+
+      const found = await nextInvite.createInvite();
+
+      expect(found).toMatchObject({
+        invite: expect.objectContaining({
+          code,
+        }),
+      });
+
+      expect(nextInvite.createInvite()).rejects.toThrowError();
     });
   });
 };

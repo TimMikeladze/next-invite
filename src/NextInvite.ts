@@ -60,7 +60,9 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
         ...data,
         total: data.total ? data.total : null,
         remaining: args.total ? args.total : null,
-        code: nanoid(),
+        code: this.config.generateInviteCode
+          ? await this.config.generateInviteCode()
+          : nanoid(),
       }),
     };
   }
