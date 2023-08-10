@@ -625,6 +625,8 @@ runTests('DrizzlePgStore', {
   },
 });
 
-runTests('UpstashStore', {
-  getStore: async () => new DrizzleUpstashStore(getUpstash()),
-});
+if (!process.env.CI) {
+  runTests('UpstashStore', {
+    getStore: async () => new DrizzleUpstashStore(getUpstash()),
+  });
+}
