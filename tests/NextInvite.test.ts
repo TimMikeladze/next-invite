@@ -18,7 +18,7 @@ const runTests = async (
   args: {
     afterEach?: () => Promise<void>;
     beforeEach?: () => Promise<void>;
-    getStore: () => Promise<NextInviteStore>;
+    store: () => Promise<NextInviteStore>;
   }
 ) => {
   const config = {};
@@ -31,8 +31,6 @@ const runTests = async (
     await args.afterEach?.();
   });
 
-  const store = (await args.getStore) as any;
-
   describe(`NextInvite - ${name}`, () => {
     beforeEach(async () => {
       await args.beforeEach?.();
@@ -41,6 +39,8 @@ const runTests = async (
     afterEach(async () => {
       await args.afterEach?.();
     });
+
+    const { store } = args;
 
     it(`initializes`, async () => {
       const nextInvite = new NextInvite(config, store);
@@ -611,7 +611,7 @@ const runTests = async (
 };
 
 runTests('DrizzlePgStore', {
-  getStore: async () => new DrizzlePgStore(await getDb()),
+  store: async () => new DrizzlePgStore(await getDb()),
   beforeEach: async () => {
     await migrate(await getDb(), {
       migrationsFolder: resolve(`tests/store/drizzle/pg/migrations`),
@@ -627,6 +627,6 @@ runTests('DrizzlePgStore', {
 
 if (!process.env.CI) {
   runTests('UpstashStore', {
-    getStore: async () => new DrizzleUpstashStore(getUpstash()),
+    store: async () => new DrizzleUpstashStore(getUpstash()),
   });
 }

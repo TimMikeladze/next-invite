@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { NextTool } from 'next-tool';
+import { NextTool, NextToolStorePromise } from 'next-tool';
 import {
   CreateInviteArgs,
   DeleteInviteArgs,
@@ -28,7 +28,10 @@ import {
 } from './types';
 
 export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
-  constructor(config: NextInviteConfig, store: NextInviteStore) {
+  constructor(
+    config: NextInviteConfig,
+    store: NextToolStorePromise<NextInviteStore> | NextInviteStore
+  ) {
     super(config, store, {
       [NextInviteAction.createInvite]: (args) => this.createInvite(args),
       [NextInviteAction.invalidateInvite]: (args) =>
