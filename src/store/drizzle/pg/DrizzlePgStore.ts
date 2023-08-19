@@ -142,12 +142,14 @@ export class DrizzlePgStore implements NextInviteStore {
     id: string;
     invalid: boolean;
     remaining: number | null;
+    uses: number;
   }) {
     const rows = await this.db
       .update(drizzlePgInvitesTable)
       .set({
         remaining: args.remaining,
         invalid: args.invalid,
+        uses: args.uses,
       })
       .where(eq(drizzlePgInvitesTable.id, args.id))
       .returning();

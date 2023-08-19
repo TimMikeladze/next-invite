@@ -197,6 +197,7 @@ export class DrizzleUpstashStore implements NextInviteStore {
     id: string;
     invalid: boolean;
     remaining: number | null;
+    uses: number;
   }) {
     const invite = await this.getInvite({ id: args.id });
 
@@ -208,6 +209,7 @@ export class DrizzleUpstashStore implements NextInviteStore {
       ...invite,
       invalid: args.invalid,
       remaining: args.remaining,
+      uses: args.uses,
       updatedAt: new Date().toISOString(),
     };
 

@@ -13,7 +13,11 @@ export enum NextInviteAction {
 }
 
 export type NextInviteConfig = NextToolConfig & {
-  logInviteUse?: boolean;
+  logUsedInvites?: boolean;
+  onInviteUsed?: (
+    invite: Invite,
+    inviteLog?: InviteLog
+  ) => Promise<void> | void;
 };
 
 export interface NextInviteStore {
@@ -42,6 +46,7 @@ export interface NextInviteStore {
     id: string;
     invalid: boolean;
     remaining: number | null;
+    uses: number;
   }): Promise<Invite>;
 }
 
@@ -57,6 +62,7 @@ export const zInvite = z.object({
   unlimited: z.boolean(),
   total: z.number().optional().nullable(),
   remaining: z.number().optional().nullable(),
+  uses: z.number().optional().nullable(),
 });
 
 export type Invite = z.infer<typeof zInvite>;

@@ -1,0 +1,1 @@
+ALTER TABLE "next_invite_invites" ADD COLUMN "uses" bigint;

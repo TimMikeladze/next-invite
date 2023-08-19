@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { it, describe, expect, beforeEach, afterEach } from 'vitest';
+import { it, describe, expect, beforeEach, afterEach, vi } from 'vitest';
 import { nanoid } from 'nanoid';
 import { DrizzlePgStore, NextInvite, drizzlePgInvitesTable } from '../src';
 import { NextInviteStore } from '../src/types';
@@ -413,6 +413,7 @@ const runTests = async (
         const { invite: usedInvite } = await nextInvite.getInvite(invite);
 
         expect(usedInvite!.invalid).toBeFalsy();
+        expect(usedInvite?.uses).toBe(3);
       });
       it('use an invite with total uses', async () => {
         const nextInvite = new NextInvite(config, store);
@@ -445,7 +446,7 @@ const runTests = async (
         const nextInvite = new NextInvite(
           {
             ...config,
-            logInviteUse: true,
+            logUsedInvites: true,
           },
           store
         );
@@ -485,13 +486,72 @@ const runTests = async (
           })
         ).rejects.toThrowError('Invite is invalid');
       });
+      it('calls onInviteUsed function', async () => {
+        const onInviteUsed = vi.fn();
+
+        const nextInvite = new NextInvite(
+          {
+            ...config,
+            onInviteUsed,
+          },
+          store
+        );
+
+        await nextInvite.init();
+
+        const { invite } = await nextInvite.createInvite({
+          email: 'foo@bar.com',
+        });
+
+        const res = await nextInvite.useInvite({
+          code: invite.code,
+          email: 'foo@bar.com',
+        });
+
+        expect(onInviteUsed).toHaveBeenCalled();
+
+        expect(res.invite).toMatchObject({
+          id: invite.id,
+        });
+      });
+      it('calls onInviteUsed function with invite log', async () => {
+        const onInviteUsed = vi.fn();
+
+        const nextInvite = new NextInvite(
+          {
+            ...config,
+            logUsedInvites: true,
+            onInviteUsed,
+          },
+          store
+        );
+
+        await nextInvite.init();
+
+        const { invite } = await nextInvite.createInvite({
+          email: 'foo@bar.com',
+        });
+
+        const res = await nextInvite.useInvite({
+          code: invite.code,
+          email: 'foo@bar.com',
+        });
+
+        expect(onInviteUsed).toHaveBeenCalled();
+
+        expect(res.invite).toMatchObject({
+          id: invite.id,
+        });
+
+        expect(res.inviteLog).toBeDefined();
+      });
     });
     describe('filter invites', () => {
       it('filter invites', async () => {
         const nextInvite = new NextInvite(
           {
             ...config,
-            logInviteUse: true,
+            logUsedInvites: true,
           },
           store
         );
@@ -510,7 +570,7 @@ const runTests = async (
         const nextInvite = new NextInvite(
           {
             ...config,
-            logInviteUse: true,
+            logUsedInvites: true,
           },
           store
         );
@@ -532,7 +592,7 @@ const runTests = async (
       const nextInvite = new NextInvite(
         {
           ...config,
-          logInviteUse: true,
+          logUsedInvites: true,
         },
         store
       );
@@ -553,7 +613,7 @@ const runTests = async (
       const nextInvite = new NextInvite(
         {
           ...config,
-          logInviteUse: true,
+          logUsedInvites: true,
         },
         store
       );
@@ -580,7 +640,7 @@ const runTests = async (
       const nextInvite = new NextInvite(
         {
           ...config,
-          logInviteUse: true,
+          logUsedInvites: true,
         },
         store
       );

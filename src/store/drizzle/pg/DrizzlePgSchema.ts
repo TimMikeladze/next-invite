@@ -35,6 +35,9 @@ export const drizzlePgInvitesTable = pgTable(`next_invite_invites`, {
   total: bigint(`total`, {
     mode: 'number',
   }),
+  uses: bigint(`uses`, {
+    mode: 'number',
+  }),
   unlimited: boolean(`unlimited`).notNull().default(false),
   invalid: boolean(`invalid`).notNull().default(false),
 });

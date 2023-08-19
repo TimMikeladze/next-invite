@@ -221,15 +221,18 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
 
     const invalid = invite.total ? remaining === 0 : !invite.unlimited;
 
+    const uses = invite.uses ? invite.uses + 1 : 1;
+
     const usedInvite = await this.store!.useInvite({
       id: invite.id,
       remaining,
       invalid,
+      uses,
     });
 
     let inviteLog;
 
-    if (this.config.logInviteUse) {
+    if (this.config.logUsedInvites) {
       inviteLog = await this.store!.logInviteUse({
         id: nanoid(),
         inviteId: invite.id,
@@ -237,6 +240,8 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
         data: args.data,
       });
     }
+
+    await this.config?.onInviteUsed?.(invite, inviteLog);
 
     return {
       invite: usedInvite,
