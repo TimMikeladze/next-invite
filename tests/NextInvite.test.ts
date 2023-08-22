@@ -172,11 +172,49 @@ const runTests = async (
           expires,
         });
 
-        expect(nextInvite.isValidInvite(invite)).to.resolves.toBeTruthy();
+        expect(nextInvite.isValidInviteById(invite)).to.resolves.toBeTruthy();
 
         await sleep(1000);
 
-        expect(nextInvite.isValidInvite(invite)).to.resolves.toBeFalsy();
+        expect(nextInvite.isValidInviteById(invite)).to.resolves.toBeFalsy();
+      });
+    });
+
+    it('isValidInviteByCode', () => {
+      it(`isValidInviteByCode`, async () => {
+        const nextInvite = new NextInvite(config, store);
+
+        await nextInvite.init();
+
+        const { invite } = await nextInvite.createInvite();
+
+        expect(
+          nextInvite.isValidInviteByCode({
+            code: invite.code,
+          })
+        ).resolves.toBeTruthy();
+
+        expect(
+          nextInvite.isValidInviteByCode({
+            code: `${invite.code}foo`,
+          })
+        ).resolves.toBeFalsy();
+      });
+      it(`isValidInviteByCode with email`, async () => {
+        const nextInvite = new NextInvite(config, store);
+
+        await nextInvite.init();
+
+        const { invite } = await nextInvite.createInvite({
+          email: 'foo@foo.com',
+        });
+
+        expect(
+          nextInvite.isValidInviteByCode({
+            code: invite.code,
+            email: 'foo@foo.com',
+          })
+        ).resolves.toBeTruthy();
       });
     });
 

@@ -39,7 +39,7 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
       [NextInviteAction.findInvite]: (args) => this.findInvite(args),
       [NextInviteAction.getInvite]: (args) => this.getInvite(args),
       [NextInviteAction.deleteInvite]: (args) => this.deleteInvite(args),
-      [NextInviteAction.isValidInvite]: (args) => this.isValidInvite(args),
+      [NextInviteAction.isValidInvite]: (args) => this.isValidInviteById(args),
       [NextInviteAction.useInvite]: (args) => this.useInvite(args),
     });
   }
@@ -179,7 +179,7 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     return true;
   }
 
-  public async isValidInvite(args: GetInviteArgs): Promise<boolean> {
+  public async isValidInviteById(args: GetInviteArgs): Promise<boolean> {
     await this.init();
 
     const data = zGetInviteArgs.parse(args);
@@ -187,6 +187,21 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     const invite = await this.store!.getInvite({
       id: data.id,
     });
+
+    if (!invite) {
+      return false;
+    }
+
+    // eslint-disable-next-line no-underscore-dangle
+    return NextInvite._isValidInvite(invite);
+  }
+
+  public async isValidInviteByCode(args: FindInviteArgs): Promise<boolean> {
+    await this.init();
+
+    const data = zFindInviteArgs.parse(args);
+
+    const { invite } = await this.findInvite(data);
 
     if (!invite) {
       return false;
@@ -210,7 +225,7 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
       throw new Error(`Invite not found`);
     }
 
-    if (!(await this.isValidInvite({ id: invite.id }))) {
+    if (!(await this.isValidInviteById({ id: invite.id }))) {
       if (!invite.invalid) {
         await this.invalidateInvite({ id: invite.id });
       }
@@ -254,6 +269,7 @@ export class NextInvite extends NextTool<NextInviteConfig, NextInviteStore> {
     if (!invite) {
       return false;
     }
+
     if (invite.invalid) {
       return false;
     }

@@ -145,7 +145,8 @@ pnpm add next-invite
 - [deleteInvite](#gear-deleteinvite)
 - [getInviteLog](#gear-getinvitelog)
 - [deleteInviteLog](#gear-deleteinvitelog)
-- [isValidInvite](#gear-isvalidinvite)
+- [isValidInviteById](#gear-isvalidinvitebyid)
+- [isValidInviteByCode](#gear-isvalidinvitebycode)
 - [useInvite](#gear-useinvite)
 
 #### :gear: createInvite
@@ -208,11 +209,17 @@ pnpm add next-invite
 | ----------------- | ---------------------------------------------- |
 | `deleteInviteLog` | `(args: { id?: string; }) => Promise<boolean>` |
 
-#### :gear: isValidInvite
+#### :gear: isValidInviteById
 
-| Method          | Type                                           |
-| --------------- | ---------------------------------------------- |
-| `isValidInvite` | `(args: { id?: string; }) => Promise<boolean>` |
+| Method              | Type                                           |
+| ------------------- | ---------------------------------------------- |
+| `isValidInviteById` | `(args: { id?: string; }) => Promise<boolean>` |
+
+#### :gear: isValidInviteByCode
+
+| Method                | Type                                                             |
+| --------------------- | ---------------------------------------------------------------- |
+| `isValidInviteByCode` | `(args: { email?: string; code?: string; }) => Promise<boolean>` |
 
 #### :gear: useInvite
 
