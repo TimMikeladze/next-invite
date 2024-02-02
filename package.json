@@ -128,7 +128,7 @@
     "eslint-plugin-typescript-sort-keys": "2.3.0",
     "eslint-plugin-unused-imports": "3.0.0",
     "husky": "8.0.3",
-    "jsdom": "^22.1.0",
+    "jsdom": "^24.0.0",
     "lint-staged": "13.2.3",
     "next": "^13.4.12",
     "pg": "8.11.2",
