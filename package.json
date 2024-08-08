@@ -130,7 +130,7 @@
     "husky": "8.0.3",
     "jsdom": "^22.1.0",
     "lint-staged": "13.2.3",
-    "next": "^13.4.12",
+    "next": "^14.0.0",
     "pg": "8.11.2",
     "prettier": "3.0.1",
     "prop-types": "15.8.1",
@@ -148,7 +148,7 @@
   "peerDependencies": {
     "@upstash/redis": ">=1.22",
     "drizzle-orm": ">=0.28",
-    "next": ">=13",
+    "next": ">=14.1.1",
     "pg": ">=8.0.0",
     "react": ">=17",
     "react-dom": ">=17"
